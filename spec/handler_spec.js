@@ -45,17 +45,24 @@ describe('AddCraftBeer Intent', () => {
 
   describe("when there is an existing order", () => {
     beforeEach(() => {
-      // event = testEvent('AddCraftBeer', 'DialogCodeHook', {beers: []}, {"CraftBeer": paleAle.name})
-      event = testEvent('AddCraftBeer', 'DialogCodeHook', {}, {"CraftBeer": paleAle.name})
+      event = testEvent('AddCraftBeer', 'DialogCodeHook', {beers: "[]"}, {"CraftBeer": paleAle.name})
     })
 
     it('should add the beer to the order', () => {
       Handler.craftBeerBot(event, {
         succeed: function(response) {
-          expect(response.sessionAttributes).to.eql({})
-          // var beers = response.sessionAttributes.beers
-          // expect(beers.length).to.equal(1)
-          // expect(beers[0]).to.equal(paleAle.id)
+          expect(response.sessionAttributes.beers).to.equal('[{"id":177,"name":"Yenda Pale Ale"}]')
+        }
+      })
+    })
+
+    it('should add the beer to the order', () => {
+      Handler.craftBeerBot(event, {
+        succeed: function(response) {
+          expect(response.dialogAction.type).to.equal("ConfirmIntent")
+          expect(response.dialogAction.intentName).to.equal("OrderCraftBeer")
+          expect(response.dialogAction.slots).to.eql({"CraftBeer": paleAle.name})
+          expect(response.dialogAction.message.content).to.equal("Ok, so that's 1 case of Yenda Pale Ale. Should I place the order now?")
         }
       })
     })
@@ -105,8 +112,7 @@ describe('OrderCraftBeer Intent', () => {
     it('should create a new beer order', () => {
       Handler.craftBeerBot(event, {
         succeed: function(response) {
-          expect(response.sessionAttributes).to.eql({})
-          // expect(response.sessionAttributes.beers).to.eql([])
+          expect(response.sessionAttributes.beers).to.eql("[]")
         }
       })
     })
@@ -118,7 +124,30 @@ describe('OrderCraftBeer Intent', () => {
         }
       })
     })
+  })
 
+  describe("specify some beer", () => {
+    beforeEach(() => {
+      event = testEvent('OrderCraftBeer', 'DialogCodeHook', {}, {CraftBeer: "Yenda Pale Ale"})
+    })
+
+    it('should create a new beer order with the specified beer', () => {
+      Handler.craftBeerBot(event, {
+        succeed: function(response) {
+          expect(response.sessionAttributes.beers).to.eql('[{"id":177,"name":"Yenda Pale Ale"}]')
+        }
+      })
+    })
+
+    it('should confirm if the user wants to submit the order', () => {
+      Handler.craftBeerBot(event, {
+        succeed: function(response) {
+          expect(response.dialogAction.type).to.equal("ConfirmIntent")
+          expect(response.dialogAction.intentName).to.equal("OrderCraftBeer")
+          expect(response.dialogAction.message.content).to.equal("Ok, so that's 1 case of Yenda Pale Ale. Should I place the order now?")
+        }
+      })
+    })
   })
 
   describe("order fullfilment", () => {

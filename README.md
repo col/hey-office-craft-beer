@@ -1,5 +1,14 @@
 # Hey Office - Craft Beer
 
+## To Do
+
+- Handle confirmation status (Denied and Confirmed)
+
+- Handle quantities
+
+- Create a better confirmMessage function
+
+
 ## Order Beer
 
 User: Order some craft beer
