@@ -30,6 +30,7 @@ defineSupportCode(function({Then, When}) {
     When(/^I say "([^"]*)"$/, function(input, callback) {
         var params = buildLexRequestParams(input)
         Lex.postText(params, function(err, data) {
+          console.log("response data = ", data)
           response = data.message
           callback()
         });

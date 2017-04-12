@@ -1,0 +1,11 @@
+{
+  "sessionAttributes": {
+    "beers": []
+  },
+  "dialogAction": {
+    "type": "Delegate",
+    "slots": {
+      "CraftBeer": null
+    }
+  }
+}

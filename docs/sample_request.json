@@ -1,0 +1,19 @@
+{
+    "messageVersion": "1.0",
+    "invocationSource": "DialogCodeHook",
+    "userId": "123456789",
+    "sessionAttributes": {},
+    "bot": {
+        "name": "HeyOffice",
+        "alias": null,
+        "version": "$LATEST"
+    },
+    "outputDialogMode": "Text",
+    "currentIntent": {
+        "name": "OrderCraftBeer",
+        "slots": {
+            "CraftBeer": null
+        },
+        "confirmationStatus": "None"
+    }
+}

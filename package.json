@@ -4,7 +4,7 @@
   "description": "",
   "main": "handler.js",
   "scripts": {
-    "test": "mocha spec/**/**_spec.js",
+    "test": "export NODE_ENV=test && mocha spec/**/**_spec.js",
     "cucumber": "cucumber.js"
   },
   "author": "",
