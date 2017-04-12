@@ -1,0 +1,22 @@
+{
+  "name": "hey-office-craft-beer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "scripts": {
+    "test": "mocha spec/**/**_spec.js",
+    "cucumber": "cucumber.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "lex-sdk": "col/lex-sdk"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.34.0",
+    "chai": "^3.5.0",
+    "cucumber": "^2.0.0-rc.7",
+    "mocha": "^3.2.0",
+    "sinon": "^2.0.0"
+  }
+}
