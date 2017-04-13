@@ -5,17 +5,14 @@ const sinon = require('sinon')
 const BeerCatalog = require('../lib/beer_catalog')
 const Handler = require('../lib/handler')
 
-function testEvent(intentName, invocationSource, sessionAttributes, slots) {
-  intentName = intentName || 'TestIntent'
-  invocationSource = invocationSource || 'FulfillmentCodeHook'
-  sessionAttributes = sessionAttributes || {}
-  slots = slots || {}
+function testEvent(intentName = 'TestIntent', invocationSource = 'FulfillmentCodeHook', sessionAttributes = {}, slots = {}, confirmationStatus = 'None') {
   return {
     sessionAttributes: sessionAttributes,
     invocationSource: invocationSource,
     currentIntent: {
       name: intentName,
-      slots: slots
+      slots: slots,
+      confirmationStatus: confirmationStatus
     }
   }
 }
@@ -152,12 +149,49 @@ describe('OrderCraftBeer Intent', () => {
 
   describe("order fullfilment", () => {
 
-    it('should tell me the order has been placed', () => {
-      var event = testEvent('OrderCraftBeer', 'FulfillmentCodeHook', {}, {})
-      Handler.craftBeerBot(event, {
-        succeed: function(response) {
-          expect(response.dialogAction.message.content).to.equal("I've placed the order")
-        }
+    describe("when the confirmation is accepted", () => {
+      beforeEach(() => {
+          event = testEvent('OrderCraftBeer', 'FulfillmentCodeHook', {beers:"[133]"}, {CraftBeer: null}, "Confirmed")
+      })
+
+      it('should tell the user the order has been placed', () => {
+        Handler.craftBeerBot(event, {
+          succeed: function(response) {
+            expect(response.dialogAction.message.content).to.equal("I've placed the order")
+          }
+        })
+      })
+
+      it('should return a fulfillment response', () => {
+        Handler.craftBeerBot(event, {
+          succeed: function(response) {
+            expect(response.dialogAction.type).to.equal('Close')
+            expect(response.dialogAction.fulfillmentState).to.equal('Fulfilled')
+          }
+        })
+      })
+    })
+
+    describe("when the confirmation is denied", () => {
+      beforeEach(() => {
+          event = testEvent('OrderCraftBeer', 'FulfillmentCodeHook', {}, {CraftBeer: null}, "Denied")
+      })
+
+      it('should say goodbye', () => {
+        Handler.craftBeerBot(event, {
+          succeed: function(response) {
+            expect(response.dialogAction.message.content).to.equal('Goodbye')
+          }
+        })
+      })
+
+      it('should close the session', () => {
+        Handler.craftBeerBot(event, {
+          succeed: function(response) {
+            expect(response.dialogAction.type).to.equal('Close')
+            expect(response.dialogAction.fulfillmentState).to.equal('Fulfilled')
+          }
+        })
       })
     })
 
