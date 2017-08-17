@@ -10,7 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "lex-sdk": "col/lex-sdk"
+    "lex-sdk": "col/lex-sdk",
+    "craft-beer": "col/craft-beer"
   },
   "devDependencies": {
     "aws-sdk": "^2.34.0",
