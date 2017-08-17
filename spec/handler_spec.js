@@ -158,14 +158,15 @@ describe('OrderCraftBeer Intent', () => {
 
     describe("when the confirmation is accepted", () => {
       beforeEach(() => {
-          event = testEvent('OrderCraftBeer', 'DialogCodeHook', {beers:"[133]"}, {CraftBeer: null}, "Confirmed")
+          event = testEvent('OrderCraftBeer', 'DialogCodeHook', {beers:'[{"id": 133, "name":"Yenda Pale Ale"}]'}, {CraftBeer: null}, "Confirmed")
       })
 
       it('should generate a valid otp', (done) => {
         Handler.craftBeerBot(event, {
-          succeed: function(response) {
-            expect(response.sessionAttributes.otp).to.be.above(999)
-            expect(response.sessionAttributes.otp).to.be.below(9999)
+          succeed: function(response) {            
+            var otp = parseInt(response.sessionAttributes.otp)
+            expect(otp).to.be.above(999)
+            expect(otp).to.be.below(9999)
             done()
           }
         })
@@ -184,7 +185,7 @@ describe('OrderCraftBeer Intent', () => {
 
       describe("when the user provides an invalid OTP", (done) => {
         beforeEach(() => {
-          event = testEvent('OrderCraftBeer', 'DialogCodeHook', {beers:"[133]", otp:"1234"}, {CraftBeer: null, OTP: "6666"}, "Confirmed")
+          event = testEvent('OrderCraftBeer', 'DialogCodeHook', {beers:'[{"id": 133, "name":"Yenda Pale Ale"}]', otp:"1234"}, {CraftBeer: null, OTP: "6666"}, "Confirmed")
         })
 
         it('should tell the user the OTP was wrong and prompt again', (done) => {
@@ -201,7 +202,7 @@ describe('OrderCraftBeer Intent', () => {
 
       describe("when the user provides the correct OTP", (done) => {
         beforeEach(() => {
-          event = testEvent('OrderCraftBeer', 'DialogCodeHook', {beers:"[133]", otp:"1234"}, {CraftBeer: null, OTP: "1234"}, "Confirmed")
+          event = testEvent('OrderCraftBeer', 'DialogCodeHook', {beers:'[{"id": 133, "name":"Yenda Pale Ale"}]', otp:"1234"}, {CraftBeer: null, OTP: "1234"}, "Confirmed")
           sinon.stub(CraftBeer, 'login').returns(Promise.resolve("example-session-token"))
           sinon.stub(CraftBeer, 'addToCart').returns(Promise.resolve())
           sinon.stub(CraftBeer, 'checkout').returns(Promise.resolve())
