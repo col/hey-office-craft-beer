@@ -159,35 +159,102 @@ describe('OrderCraftBeer Intent', () => {
     describe("when the confirmation is accepted", () => {
       beforeEach(() => {
           event = testEvent('OrderCraftBeer', 'DialogCodeHook', {beers:"[133]"}, {CraftBeer: null}, "Confirmed")
+      })
+
+      it('should generate a valid otp', (done) => {
+        Handler.craftBeerBot(event, {
+          succeed: function(response) {
+            expect(response.sessionAttributes.otp).to.be.above(999)
+            expect(response.sessionAttributes.otp).to.be.below(9999)
+            done()
+          }
+        })
+      })
+
+      it('should ask the user to enter the otp', (done) => {
+        Handler.craftBeerBot(event, {
+          succeed: function(response) {
+            expect(response.dialogAction.message.content).to.equal("Please enter the confirmation code")
+            expect(response.dialogAction.type).to.equal('ElicitSlot')
+            expect(response.dialogAction.slotToElicit).to.equal('OTP')
+            done()
+          }
+        })
+      })
+
+      describe("when the user provides an invalid OTP", (done) => {
+        beforeEach(() => {
+          event = testEvent('OrderCraftBeer', 'DialogCodeHook', {beers:"[133]", otp:"1234"}, {CraftBeer: null, OTP: "6666"}, "Confirmed")
+        })
+
+        it('should tell the user the OTP was wrong and prompt again', (done) => {
+          Handler.craftBeerBot(event, {
+            succeed: function(response) {
+              expect(response.dialogAction.message.content).to.equal("Confirmation code was incorrect. Please try again.")
+              expect(response.dialogAction.type).to.equal('ElicitSlot')
+              expect(response.dialogAction.slotToElicit).to.equal('OTP')
+              done()
+            }
+          })
+        })
+      })
+
+      describe("when the user provides the correct OTP", (done) => {
+        beforeEach(() => {
+          event = testEvent('OrderCraftBeer', 'DialogCodeHook', {beers:"[133]", otp:"1234"}, {CraftBeer: null, OTP: "1234"}, "Confirmed")
           sinon.stub(CraftBeer, 'login').returns(Promise.resolve("example-session-token"))
           sinon.stub(CraftBeer, 'addToCart').returns(Promise.resolve())
           sinon.stub(CraftBeer, 'checkout').returns(Promise.resolve())
-      })
-
-      afterEach(() => {
-        CraftBeer.login.restore()
-        CraftBeer.addToCart.restore()
-        CraftBeer.checkout.restore()
-      })
-
-      it('should tell the user the order has been placed', (done) => {
-        Handler.craftBeerBot(event, {
-          succeed: function(response) {
-            expect(response.dialogAction.message.content).to.equal("I've placed the order")
-            done()
-          }
         })
+
+        afterEach(() => {
+          CraftBeer.login.restore()
+          CraftBeer.addToCart.restore()
+          CraftBeer.checkout.restore()
+        })
+
+        it('should submit the order', (done) => {
+          Handler.craftBeerBot(event, {
+            succeed: function(response) {
+              // TODO: assert the order was placed correctly...
+              done()
+            }
+          })
+        })
+
+        describe("when the order is successful", () => {
+          it('should tell the user the order has been placed', (done) => {
+            Handler.craftBeerBot(event, {
+              succeed: function(response) {
+                expect(response.dialogAction.message.content).to.equal("I've placed the order")
+                expect(response.dialogAction.type).to.equal('Close')
+                expect(response.dialogAction.fulfillmentState).to.equal('Fulfilled')
+                done()
+              }
+            })
+          })
+        })
+
+        describe("when the order fails", () => {
+          beforeEach(() => {
+            CraftBeer.checkout.restore()
+            sinon.stub(CraftBeer, 'checkout').returns(Promise.reject('credit card declined'))
+          })
+
+          it('should tell the user there was an error', (done) => {
+            Handler.craftBeerBot(event, {
+              succeed: function(response) {
+                expect(response.dialogAction.message.content).to.equal("The was a problem placing the order. Please try again later.")
+                expect(response.dialogAction.type).to.equal('Close')
+                expect(response.dialogAction.fulfillmentState).to.equal('Fulfilled')
+                done()
+              }
+            })
+          })
+        })
+
       })
 
-      it('should return a fulfillment response', (done) => {
-        Handler.craftBeerBot(event, {
-          succeed: function(response) {
-            expect(response.dialogAction.type).to.equal('Close')
-            expect(response.dialogAction.fulfillmentState).to.equal('Fulfilled')
-            done()
-          }
-        })
-      })
     })
 
     describe("when the confirmation is denied", () => {
@@ -218,73 +285,7 @@ describe('OrderCraftBeer Intent', () => {
 
   describe("order fullfilment", () => {
 
-    describe("when the order is successful", () => {
-      beforeEach(() => {
-        event = testEvent('OrderCraftBeer', 'FulfillmentCodeHook', {beers:"[133]"}, {CraftBeer: null}, "Confirmed")
-        sinon.stub(CraftBeer, 'login').returns(Promise.resolve("example-session-token"))
-        sinon.stub(CraftBeer, 'addToCart').returns(Promise.resolve())
-        sinon.stub(CraftBeer, 'checkout').returns(Promise.resolve())
-      })
-
-      afterEach(() => {
-        CraftBeer.login.restore()
-        CraftBeer.addToCart.restore()
-        CraftBeer.checkout.restore()
-      })
-
-      it('should tell the user the order has been placed', (done) => {
-        Handler.craftBeerBot(event, {
-          succeed: function(response) {
-            expect(response.dialogAction.message.content).to.equal("I've placed the order")
-            done()
-          }
-        })
-      })
-
-      it('should return a fulfillment response', (done) => {
-        Handler.craftBeerBot(event, {
-          succeed: function(response) {
-            expect(response.dialogAction.type).to.equal('Close')
-            expect(response.dialogAction.fulfillmentState).to.equal('Fulfilled')
-            done()
-          }
-        })
-      })
-    })
-
-    describe("when the order fails", () => {
-      beforeEach(() => {
-        event = testEvent('OrderCraftBeer', 'FulfillmentCodeHook', {beers:"[133]"}, {CraftBeer: null}, "Confirmed")
-        sinon.stub(CraftBeer, 'login').returns(Promise.resolve("example-session-token"))
-        sinon.stub(CraftBeer, 'addToCart').returns(Promise.resolve())
-        sinon.stub(CraftBeer, 'checkout').returns(Promise.reject('credit card declined'))
-      })
-
-      afterEach(() => {
-        CraftBeer.login.restore()
-        CraftBeer.addToCart.restore()
-        CraftBeer.checkout.restore()
-      })
-
-      it('should tell the user there was an error', (done) => {
-        Handler.craftBeerBot(event, {
-          succeed: function(response) {
-            expect(response.dialogAction.message.content).to.equal("The was a problem placing the order. Please try again later.")
-            done()
-          }
-        })
-      })
-
-      it('should return a fulfillment response', (done) => {
-        Handler.craftBeerBot(event, {
-          succeed: function(response) {
-            expect(response.dialogAction.type).to.equal('Close')
-            expect(response.dialogAction.fulfillmentState).to.equal('Fulfilled')
-            done()
-          }
-        })
-      })
-    })
+      // TODO: Not sure when the fulfillment handler is actually called ATM
 
   })
 
