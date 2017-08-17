@@ -147,11 +147,11 @@ describe('OrderCraftBeer Intent', () => {
     })
   })
 
-  describe("order fullfilment", () => {
+  describe("confirmation", () => {
 
     describe("when the confirmation is accepted", () => {
       beforeEach(() => {
-          event = testEvent('OrderCraftBeer', 'FulfillmentCodeHook', {beers:"[133]"}, {CraftBeer: null}, "Confirmed")
+          event = testEvent('OrderCraftBeer', 'DialogCodeHook', {beers:"[133]"}, {CraftBeer: null}, "Confirmed")
       })
 
       it('should tell the user the order has been placed', () => {
@@ -174,7 +174,7 @@ describe('OrderCraftBeer Intent', () => {
 
     describe("when the confirmation is denied", () => {
       beforeEach(() => {
-          event = testEvent('OrderCraftBeer', 'FulfillmentCodeHook', {}, {CraftBeer: null}, "Denied")
+          event = testEvent('OrderCraftBeer', 'DialogCodeHook', {}, {CraftBeer: null}, "Denied")
       })
 
       it('should say goodbye', () => {
@@ -192,6 +192,30 @@ describe('OrderCraftBeer Intent', () => {
             expect(response.dialogAction.fulfillmentState).to.equal('Fulfilled')
           }
         })
+      })
+    })
+  })
+
+  describe("order fullfilment", () => {
+
+    beforeEach(() => {
+        event = testEvent('OrderCraftBeer', 'FulfillmentCodeHook', {beers:"[133]"}, {CraftBeer: null}, "Confirmed")
+    })
+
+    it('should tell the user the order has been placed', () => {
+      Handler.craftBeerBot(event, {
+        succeed: function(response) {
+          expect(response.dialogAction.message.content).to.equal("I've placed the order")
+        }
+      })
+    })
+
+    it('should return a fulfillment response', () => {
+      Handler.craftBeerBot(event, {
+        succeed: function(response) {
+          expect(response.dialogAction.type).to.equal('Close')
+          expect(response.dialogAction.fulfillmentState).to.equal('Fulfilled')
+        }
       })
     })
 
