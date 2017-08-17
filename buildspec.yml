@@ -1,0 +1,15 @@
+version: 0.1
+phases:
+    install:
+      commands:
+        - npm install -g serverless
+        - npm install
+    build:
+      commands:
+        - npm test
+        - serverless deploy -v
+artifacts:
+  files:
+    - lib/handler.js
+    - package.json
+    - serverless.yml
