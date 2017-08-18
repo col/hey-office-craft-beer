@@ -189,7 +189,10 @@ describe('OrderCraftBeer Intent', () => {
               Message: sinon.match(/^HeyOffice Craft Beer Confirmation Code: \d{4}/),
               MessageStructure: 'string',
               PhoneNumber: '+6583677493',
-              SenderId: 'HeyOffice'
+              MessageAttributes: {
+                  'AWS.SNS.SMS.SenderID': 'HeyOffice',
+                  'AWS.SNS.SMS.SMSType': 'Transactional'
+              }
             })
             done()
           }
