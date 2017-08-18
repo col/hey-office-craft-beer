@@ -163,7 +163,7 @@ describe('OrderCraftBeer Intent', () => {
 
       it('should generate a valid otp', (done) => {
         Handler.craftBeerBot(event, {
-          succeed: function(response) {            
+          succeed: function(response) {
             var otp = parseInt(response.sessionAttributes.otp)
             expect(otp).to.be.above(999)
             expect(otp).to.be.below(9999)
@@ -215,9 +215,21 @@ describe('OrderCraftBeer Intent', () => {
         })
 
         it('should submit the order', (done) => {
+          process.env.CRAFTBEER_USERNAME = "test_user"
+          process.env.CRAFTBEER_PASSWORD = "password"
+          process.env.CRAFTBEER_ADDRESS_ID=123
+          process.env.CRAFTBEER_CC_NAME="John Smith"
+          process.env.CRAFTBEER_CC_TYPE="AMEX"
+          process.env.CRAFTBEER_CC_NUMBER="123456789012345"
+          process.env.CRAFTBEER_CC_EXPIRY_MONTH="01"
+          process.env.CRAFTBEER_CC_EXPIRY_YEAR=20
+          process.env.CRAFTBEER_CC_CCV=1234
+
           Handler.craftBeerBot(event, {
             succeed: function(response) {
-              // TODO: assert the order was placed correctly...
+              sinon.assert.calledWith(CraftBeer.login, "test_user", "password")
+              sinon.assert.calledWith(CraftBeer.addToCart, "example-session-token", 133)
+              sinon.assert.calledWith(CraftBeer.checkout, "example-session-token", "123", "John Smith", "AMEX", "123456789012345", "01", "20", "1234")
               done()
             }
           })
