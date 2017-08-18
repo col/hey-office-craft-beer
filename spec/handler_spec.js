@@ -61,7 +61,7 @@ describe('AddCraftBeer Intent', () => {
         succeed: function(response) {
           expect(response.dialogAction.type).to.equal("ConfirmIntent")
           expect(response.dialogAction.intentName).to.equal("OrderCraftBeer")
-          expect(response.dialogAction.slots).to.eql({CraftBeer: paleAle.name, OTP: null})
+          expect(response.dialogAction.slots).to.eql({CraftBeer: null, OTP: null})
           expect(response.dialogAction.message.content).to.equal("Ok, so that's 1 case of Yenda Pale Ale. Should I place the order now?")
           done()
         }
@@ -230,6 +230,7 @@ describe('OrderCraftBeer Intent', () => {
         it('should tell the user the OTP was wrong and prompt again', (done) => {
           Handler.craftBeerBot(event, {
             succeed: function(response) {
+              expect(response.sessionAttributes.otp).to.be.undefined
               expect(response.dialogAction.message.content).to.equal("Confirmation code was incorrect. Please try again.")
               expect(response.dialogAction.type).to.equal('ElicitSlot')
               expect(response.dialogAction.slotToElicit).to.equal('OTP')
