@@ -188,7 +188,8 @@ describe('OrderCraftBeer Intent', () => {
             sinon.assert.calledWith(snsPublishStub, {
               Message: sinon.match(/^HeyOffice Craft Beer Confirmation Code: \d{4}/),
               MessageStructure: 'string',
-              PhoneNumber: '+6583677493'
+              PhoneNumber: '+6583677493',
+              SenderId: 'HeyOffice'
             })
             done()
           }
@@ -225,7 +226,7 @@ describe('OrderCraftBeer Intent', () => {
 
       describe("when the user provides the correct OTP", (done) => {
         beforeEach(() => {
-          event = testEvent('OrderCraftBeer', 'DialogCodeHook', {beers:'[{"id": 133, "name":"Yenda Pale Ale"}]', otp:"1234"}, {CraftBeer: null, OTP: "1234"}, "Confirmed")
+          event = testEvent('OrderCraftBeer', 'DialogCodeHook', {beers:'[{"id": 133, "name":"Yenda Pale Ale"}]', otp:"1234"}, {CraftBeer: null, OTP: "1234"}, "None")
           sinon.stub(CraftBeer, 'login').returns(Promise.resolve("example-session-token"))
           sinon.stub(CraftBeer, 'addToCart').returns(Promise.resolve())
           sinon.stub(CraftBeer, 'checkout').returns(Promise.resolve())
