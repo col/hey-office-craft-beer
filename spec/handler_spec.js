@@ -288,6 +288,7 @@ describe('OrderCraftBeer Intent', () => {
                 expect(response.dialogAction.message.content).to.equal("I've placed the order")
                 expect(response.dialogAction.type).to.equal('Close')
                 expect(response.dialogAction.fulfillmentState).to.equal('Fulfilled')
+                expect(response.sessionAttributes).to.eql({})
                 done()
               }
             })
