@@ -5,6 +5,7 @@ const sinon = require('sinon')
 const BeerCatalog = require('../lib/beer_catalog')
 const Handler = require('../lib/handler')
 const CraftBeer = require("craft-beer")
+var AWS = require('aws-sdk')
 
 function testEvent(intentName = 'TestIntent', invocationSource = 'FulfillmentCodeHook', sessionAttributes = {}, slots = {}, confirmationStatus = 'None') {
   return {
@@ -157,8 +158,17 @@ describe('OrderCraftBeer Intent', () => {
   describe("confirmation", () => {
 
     describe("when the confirmation is accepted", () => {
+      var snsStub = null
+      var snsPublishStub = null
       beforeEach(() => {
-          event = testEvent('OrderCraftBeer', 'DialogCodeHook', {beers:'[{"id": 133, "name":"Yenda Pale Ale"}]'}, {CraftBeer: null}, "Confirmed")
+        event = testEvent('OrderCraftBeer', 'DialogCodeHook', {beers:'[{"id": 133, "name":"Yenda Pale Ale"}]'}, {CraftBeer: null}, "Confirmed")
+        snsStub = sinon.stub(AWS, "SNS")
+        snsPublishStub = sinon.stub().callsArgWith(1, null, {})
+        snsStub.prototype.publish = snsPublishStub
+      })
+
+      afterEach(() => {
+        snsStub.restore()
       })
 
       it('should generate a valid otp', (done) => {
@@ -167,6 +177,19 @@ describe('OrderCraftBeer Intent', () => {
             var otp = parseInt(response.sessionAttributes.otp)
             expect(otp).to.be.above(999)
             expect(otp).to.be.below(9999)
+            done()
+          }
+        })
+      })
+
+      it('should send the otp to the user via SMS', (done) => {
+        Handler.craftBeerBot(event, {
+          succeed: function(response) {
+            sinon.assert.calledWith(snsPublishStub, {
+              Message: sinon.match(/^HeyOffice Craft Beer Confirmation Code: \d{4}/),
+              MessageStructure: 'string',
+              PhoneNumber: '+6583677493'
+            })
             done()
           }
         })
