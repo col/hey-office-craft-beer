@@ -44,7 +44,7 @@ describe('AddCraftBeer Intent', () => {
 
   describe("when there is an existing order", () => {
     beforeEach(() => {
-      event = testEvent('AddCraftBeer', 'DialogCodeHook', {beers: "[]"}, {"CraftBeer": paleAle.name})
+      event = testEvent('AddCraftBeer', 'DialogCodeHook', {beers: "[]"}, {CraftBeer: paleAle.name, OTP: null})
     })
 
     it('should add the beer to the order', (done) => {
@@ -61,7 +61,7 @@ describe('AddCraftBeer Intent', () => {
         succeed: function(response) {
           expect(response.dialogAction.type).to.equal("ConfirmIntent")
           expect(response.dialogAction.intentName).to.equal("OrderCraftBeer")
-          expect(response.dialogAction.slots).to.eql({"CraftBeer": paleAle.name})
+          expect(response.dialogAction.slots).to.eql({CraftBeer: paleAle.name, OTP: null})
           expect(response.dialogAction.message.content).to.equal("Ok, so that's 1 case of Yenda Pale Ale. Should I place the order now?")
           done()
         }
@@ -70,7 +70,7 @@ describe('AddCraftBeer Intent', () => {
 
     describe("when the requested beer is not found", () => {
       beforeEach(() => {
-        event = testEvent('AddCraftBeer', 'DialogCodeHook', {beers: []}, {"CraftBeer": "Tiger"})
+        event = testEvent('AddCraftBeer', 'DialogCodeHook', {beers: []}, {CraftBeer: "Tiger", OTP: null})
       })
 
       it("should tell the user it's not available", (done) => {
@@ -87,7 +87,7 @@ describe('AddCraftBeer Intent', () => {
 
   describe("when there is NOT an existing order", () => {
     beforeEach(() => {
-      event = testEvent('AddCraftBeer', 'DialogCodeHook', {}, {"CraftBeer": paleAle.name})
+      event = testEvent('AddCraftBeer', 'DialogCodeHook', {}, {CraftBeer: paleAle.name, OTP: null})
     })
 
     it('should not create an order', (done) => {
@@ -109,7 +109,7 @@ describe('OrderCraftBeer Intent', () => {
 
   describe("start ordering", () => {
     beforeEach(() => {
-      event = testEvent('OrderCraftBeer', 'DialogCodeHook', {}, {CraftBeer: null})
+      event = testEvent('OrderCraftBeer', 'DialogCodeHook', {}, {CraftBeer: null, OTP: null})
     })
 
     it('should create a new beer order', () => {
@@ -131,7 +131,7 @@ describe('OrderCraftBeer Intent', () => {
 
   describe("specify some beer", () => {
     beforeEach(() => {
-      event = testEvent('OrderCraftBeer', 'DialogCodeHook', {}, {CraftBeer: "Yenda Pale Ale"})
+      event = testEvent('OrderCraftBeer', 'DialogCodeHook', {}, {CraftBeer: "Yenda Pale Ale", OTP: null})
     })
 
     it('should create a new beer order with the specified beer', (done) => {
@@ -161,7 +161,13 @@ describe('OrderCraftBeer Intent', () => {
       var snsStub = null
       var snsPublishStub = null
       beforeEach(() => {
-        event = testEvent('OrderCraftBeer', 'DialogCodeHook', {beers:'[{"id": 133, "name":"Yenda Pale Ale"}]'}, {CraftBeer: null}, "Confirmed")
+        event = testEvent(
+          'OrderCraftBeer',
+          'DialogCodeHook',
+          {beers:'[{"id": 133, "name":"Yenda Pale Ale"}]'},
+          {CraftBeer: null, OTP: null},
+          "Confirmed"
+        )
         snsStub = sinon.stub(AWS, "SNS")
         snsPublishStub = sinon.stub().callsArgWith(1, null, {})
         snsStub.prototype.publish = snsPublishStub
@@ -212,7 +218,13 @@ describe('OrderCraftBeer Intent', () => {
 
       describe("when the user provides an invalid OTP", (done) => {
         beforeEach(() => {
-          event = testEvent('OrderCraftBeer', 'DialogCodeHook', {beers:'[{"id": 133, "name":"Yenda Pale Ale"}]', otp:"1234"}, {CraftBeer: null, OTP: "6666"}, "Confirmed")
+          event = testEvent(
+            'OrderCraftBeer',
+            'DialogCodeHook',
+            {beers:'[{"id": 133, "name":"Yenda Pale Ale"}]', otp:"1234"},
+            {CraftBeer: null, OTP: "6666"},
+            "Confirmed"
+          )
         })
 
         it('should tell the user the OTP was wrong and prompt again', (done) => {
@@ -229,7 +241,13 @@ describe('OrderCraftBeer Intent', () => {
 
       describe("when the user provides the correct OTP", (done) => {
         beforeEach(() => {
-          event = testEvent('OrderCraftBeer', 'DialogCodeHook', {beers:'[{"id": 133, "name":"Yenda Pale Ale"}]', otp:"1234"}, {CraftBeer: null, OTP: "1234"}, "None")
+          event = testEvent(
+            'OrderCraftBeer',
+            'DialogCodeHook',
+            {beers:'[{"id": 133, "name":"Yenda Pale Ale"}]', otp:"1234"},
+            {CraftBeer: null, OTP: "1234"},
+            "None"
+          )
           sinon.stub(CraftBeer, 'login').returns(Promise.resolve("example-session-token"))
           sinon.stub(CraftBeer, 'addToCart').returns(Promise.resolve())
           sinon.stub(CraftBeer, 'checkout').returns(Promise.resolve())
@@ -299,7 +317,7 @@ describe('OrderCraftBeer Intent', () => {
 
     describe("when the confirmation is denied", () => {
       beforeEach(() => {
-          event = testEvent('OrderCraftBeer', 'DialogCodeHook', {}, {CraftBeer: null}, "Denied")
+          event = testEvent('OrderCraftBeer', 'DialogCodeHook', {}, {CraftBeer: null, OTP: null}, "Denied")
       })
 
       it('should say goodbye', (done) => {
