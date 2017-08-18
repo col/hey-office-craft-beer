@@ -190,8 +190,8 @@ describe('OrderCraftBeer Intent', () => {
               MessageStructure: 'string',
               PhoneNumber: '+6583677493',
               MessageAttributes: {
-                  'AWS.SNS.SMS.SenderID': 'HeyOffice',
-                  'AWS.SNS.SMS.SMSType': 'Transactional'
+                  'AWS.SNS.SMS.SenderID': { StringValue: 'HeyOffice', DataType: 'String' },
+                  'AWS.SNS.SMS.SMSType': { StringValue: 'Transactional', DataType: 'String' }
               }
             })
             done()
