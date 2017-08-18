@@ -50,7 +50,7 @@ describe('AddCraftBeer Intent', () => {
     it('should add the beer to the order', (done) => {
       Handler.craftBeerBot(event, {
         succeed: function(response) {
-          expect(response.sessionAttributes.beers).to.equal('[{"id":177,"name":"Yenda Pale Ale"}]')
+          expect(response.sessionAttributes.beers).to.equal('[177]')
           done()
         }
       })
@@ -137,7 +137,7 @@ describe('OrderCraftBeer Intent', () => {
     it('should create a new beer order with the specified beer', (done) => {
       Handler.craftBeerBot(event, {
         succeed: function(response) {
-          expect(response.sessionAttributes.beers).to.eql('[{"id":177,"name":"Yenda Pale Ale"}]')
+          expect(response.sessionAttributes.beers).to.eql('[177]')
           done()
         }
       })
@@ -164,7 +164,7 @@ describe('OrderCraftBeer Intent', () => {
         event = testEvent(
           'OrderCraftBeer',
           'DialogCodeHook',
-          {beers:'[{"id": 133, "name":"Yenda Pale Ale"}]'},
+          {beers:'[133]'},
           {CraftBeer: null, OTP: null},
           "Confirmed"
         )
@@ -221,7 +221,7 @@ describe('OrderCraftBeer Intent', () => {
           event = testEvent(
             'OrderCraftBeer',
             'DialogCodeHook',
-            {beers:'[{"id": 133, "name":"Yenda Pale Ale"}]', otp:"1234"},
+            {beers:'[133]', otp:"1234"},
             {CraftBeer: null, OTP: "6666"},
             "Confirmed"
           )
@@ -245,7 +245,7 @@ describe('OrderCraftBeer Intent', () => {
           event = testEvent(
             'OrderCraftBeer',
             'DialogCodeHook',
-            {beers:'[{"id": 133, "name":"Yenda Pale Ale"}]', otp:"1234"},
+            {beers: '[133]', otp: "1234"},
             {CraftBeer: null, OTP: "1234"},
             "None"
           )
