@@ -342,21 +342,22 @@ describe('OrderCraftBeer Intent', () => {
           succeed: function(response) {
             sinon.assert.calledWith(snsPublishStub, {
               TargetArn: sinon.match.string,
-              Message: {
-                default: 'Hey Office Order Confirmation',
-                APNS: {
-                  aps: {
-                    alert: {
-                      title: 'Hey Office Order Confirmation',
-                      body: sinon.match(/^Please confirm this request \(OTP: \d{4}\)/)
-                    },
-                    sound: 'default'
-                  },
-                  type: 'order_confirmation',
-                  otp: sinon.match.string,
-                  beers: [{id: 133, name: "Sambrooks Battersea IPA"}]
-                }
-              },
+              Message: sinon.match.string,
+              // Message: {
+              //   default: 'Hey Office Order Confirmation',
+              //   APNS: {
+              //     aps: {
+              //       alert: {
+              //         title: 'Hey Office Order Confirmation',
+              //         body: sinon.match(/^Please confirm this request \(OTP: \d{4}\)/)
+              //       },
+              //       sound: 'default'
+              //     },
+              //     type: 'order_confirmation',
+              //     otp: sinon.match.string,
+              //     beers: [{id: 133, name: "Sambrooks Battersea IPA"}]
+              //   }
+              // },
               MessageStructure: 'json',
             })
             done()
