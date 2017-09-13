@@ -157,7 +157,7 @@ describe('OrderCraftBeer Intent', () => {
 
   describe("confirmation", () => {
 
-    describe("when the confirmation is accepted", () => {
+    xdescribe("when the confirmation is accepted", () => {
       var snsStub = null
       var snsPublishStub = null
       beforeEach(() => {
