@@ -348,11 +348,12 @@ describe('OrderCraftBeer Intent', () => {
                   aps: {
                     alert: {
                       title: 'Hey Office Order Confirmation',
-                      body: 'Please confirm or deny this request'
+                      body: sinon.match(/^Please confirm this request \(OTP: \d{4}\)/)
                     },
                     sound: 'default'
                   },
                   type: 'order_confirmation',
+                  otp: sinon.match.string,
                   beers: [{id: 133, name: "Sambrooks Battersea IPA"}]
                 }
               },
@@ -366,7 +367,7 @@ describe('OrderCraftBeer Intent', () => {
       it('should tell the user to confirm on their phone', (done) => {
         Handler.craftBeerBot(event, {
           succeed: function(response) {
-            expect(response.dialogAction.message.content).to.equal("An order confirmationhas been sent to your phone")
+            expect(response.dialogAction.message.content).to.equal("An order confirmation has been sent to your phone")
             // TODO ... more assertions
             done()
           }
